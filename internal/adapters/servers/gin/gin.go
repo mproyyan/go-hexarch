@@ -15,7 +15,7 @@ type GinServer struct {
 	handlers     map[string]interface{}
 }
 
-func NewGinServer(port string) *GinServer {
+func NewGinServer(datasource interface{}, port string) *GinServer {
 	gs := &GinServer{
 		Engine:       gin.Default(),
 		port:         port,
