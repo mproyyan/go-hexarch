@@ -12,6 +12,12 @@ type ProductRepository struct {
 	DB databases.DBTX
 }
 
+func NewProductRepository(db databases.DBTX) *ProductRepository {
+	return &ProductRepository{
+		DB: db,
+	}
+}
+
 func (pr *ProductRepository) FindAll(ctx context.Context) ([]*domain.Product, error) {
 	sql, _, err := sq.Select("id", "name").From("products").ToSql()
 	if err != nil {
