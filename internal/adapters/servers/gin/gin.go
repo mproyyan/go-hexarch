@@ -24,6 +24,11 @@ func NewGinServer(datasource interface{}, port string) *GinServer {
 		handlers:     make(map[string]interface{}),
 	}
 
+	gs.registerRepositories(datasource)
+	gs.registerServices(datasource)
+	gs.registerHandlers()
+	gs.registerRoutes()
+
 	return gs
 }
 

@@ -1,0 +1,27 @@
+GET http://localhost:1307/api/products
+
+###
+
+POST http://localhost:1307/api/products
+Content-Type: application/json
+
+{
+   "name": "delted"
+}
+
+###
+
+GET http://localhost:1307/api/products/1
+
+###
+
+PUT http://localhost:1307/api/products/2
+Content-Type: application/json
+
+{
+   "name": "Keyboard Gaming"
+}
+
+###
+
+DELETE http://localhost:1307/api/products/3
