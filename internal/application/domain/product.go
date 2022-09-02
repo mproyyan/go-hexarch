@@ -12,7 +12,7 @@ type ProductCreateRequest struct {
 }
 
 type ProductUpdateRequest struct {
-	ID   int    `json:"id" form:"id" binding:"required,numeric"`
+	ID   int    `json:"id"`
 	Name string `json:"name" form:"name" binding:"required,min=1,max=200,alpha"`
 }
 
