@@ -80,7 +80,7 @@ func (pr *ProductRepository) Find(ctx context.Context, productId int) (*domain.P
 
 	defer rows.Close()
 
-	var product *domain.Product
+	var product domain.Product
 	if rows.Next() {
 		rows.Scan(&product.ID, &product.Name)
 		if err = rows.Err(); err != nil {
@@ -88,7 +88,7 @@ func (pr *ProductRepository) Find(ctx context.Context, productId int) (*domain.P
 		}
 	}
 
-	return product, nil
+	return &product, nil
 }
 
 func (pr *ProductRepository) Update(ctx context.Context, product domain.Product) (*domain.Product, error) {
