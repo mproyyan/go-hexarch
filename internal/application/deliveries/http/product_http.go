@@ -19,7 +19,7 @@ func NewProductHttp(productService domain.ProductService) *ProductHttp {
 }
 
 func (ph *ProductHttp) FindAll(c *gin.Context) {
-	products := ph.ProductService.FindAll(c.Request.Context())
+	products, _ := ph.ProductService.FindAll(c.Request.Context())
 	c.JSON(200, products)
 }
 
@@ -29,7 +29,7 @@ func (ph *ProductHttp) Create(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	createdProduct := ph.ProductService.Create(c.Request.Context(), request)
+	createdProduct, _ := ph.ProductService.Create(c.Request.Context(), request)
 	c.JSON(201, createdProduct)
 }
 
@@ -39,7 +39,7 @@ func (ph *ProductHttp) Find(c *gin.Context) {
 		c.AbortWithStatus(404)
 	}
 
-	product := ph.ProductService.Find(c.Request.Context(), productId)
+	product, _ := ph.ProductService.Find(c.Request.Context(), productId)
 	c.JSON(200, product)
 }
 
@@ -53,7 +53,7 @@ func (ph *ProductHttp) Update(c *gin.Context) {
 	c.ShouldBind(&request)
 	request.ID = productId
 
-	product := ph.ProductService.Update(c.Request.Context(), request)
+	product, _ := ph.ProductService.Update(c.Request.Context(), request)
 	c.JSON(200, product)
 }
 

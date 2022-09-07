@@ -25,9 +25,9 @@ type ProductRepository interface {
 }
 
 type ProductService interface {
-	FindAll(ctx context.Context) []*Product
-	Create(ctx context.Context, request ProductCreateRequest) *Product
-	Find(ctx context.Context, productId int) *Product
-	Update(ctx context.Context, request ProductUpdateRequest) *Product
-	Delete(ctx context.Context, productId int)
+	FindAll(ctx context.Context) ([]*Product, error)
+	Create(ctx context.Context, request ProductCreateRequest) (*Product, error)
+	Find(ctx context.Context, productId int) (*Product, error)
+	Update(ctx context.Context, request ProductUpdateRequest) (*Product, error)
+	Delete(ctx context.Context, productId int) error
 }
