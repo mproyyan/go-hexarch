@@ -23,12 +23,12 @@ func NewProductRepository(db databases.DBTX) *ProductRepository {
 func (pr *ProductRepository) FindAll(ctx context.Context) ([]*domain.Product, error) {
 	sql, _, err := sq.Select("id", "name").From("products").ToSql()
 	if err != nil {
-		return nil, err
+		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	rows, err := pr.DB.QueryContext(ctx, sql)
 	if err != nil {
-		return nil, err
+		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	defer rows.Close()
@@ -51,17 +51,17 @@ func (pr *ProductRepository) FindAll(ctx context.Context) ([]*domain.Product, er
 func (pr *ProductRepository) Save(ctx context.Context, product domain.Product) (*domain.Product, error) {
 	sql, args, err := sq.Insert("products").Columns("name").Values(product.Name).ToSql()
 	if err != nil {
-		return nil, err
+		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	result, err := pr.DB.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return nil, err
+		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	id, err := result.LastInsertId()
 	if err != nil {
-		return nil, err
+		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	product.ID = int(id)
