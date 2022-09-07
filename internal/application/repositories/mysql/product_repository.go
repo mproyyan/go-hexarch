@@ -72,12 +72,12 @@ func (pr *ProductRepository) Save(ctx context.Context, product domain.Product) (
 func (pr *ProductRepository) Find(ctx context.Context, productId int) (*domain.Product, error) {
 	sql, args, err := sq.Select("id", "name").From("products").Where("id = ?", productId).Limit(1).ToSql()
 	if err != nil {
-		return nil, err
+		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	rows, err := pr.DB.QueryContext(ctx, sql, args...)
 	if err != nil {
-		return nil, err
+		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	defer rows.Close()
@@ -86,7 +86,7 @@ func (pr *ProductRepository) Find(ctx context.Context, productId int) (*domain.P
 	if rows.Next() {
 		rows.Scan(&product.ID, &product.Name)
 		if err = rows.Err(); err != nil {
-			return nil, err
+			return nil, cuserr.NewInternalServerErr().Wrap(err)
 		}
 	} else {
 		notFound := fmt.Errorf("you tried to search for a product with id %d, and no results were found", productId)
@@ -99,12 +99,12 @@ func (pr *ProductRepository) Find(ctx context.Context, productId int) (*domain.P
 func (pr *ProductRepository) Update(ctx context.Context, product domain.Product) (*domain.Product, error) {
 	sql, args, err := sq.Update("products").Set("name", product.Name).Where("id = ?", product.ID).ToSql()
 	if err != nil {
-		return nil, err
+		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	_, err = pr.DB.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return nil, err
+		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	return &product, nil
@@ -113,10 +113,10 @@ func (pr *ProductRepository) Update(ctx context.Context, product domain.Product)
 func (pr *ProductRepository) Delete(ctx context.Context, productId int) error {
 	sql, args, err := sq.Delete("products").Where("id = ?", productId).ToSql()
 	if err != nil {
-		return err
+		return cuserr.NewInternalServerErr().Wrap(err)
 	}
 
 	_, err = pr.DB.ExecContext(ctx, sql, args...)
 
-	return err
+	return cuserr.NewInternalServerErr().Wrap(err)
 }
