@@ -2,8 +2,10 @@ package mysqlrepo
 
 import (
 	"context"
+	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
+	cuserr "github.com/mproyyan/gin-rest-api/errors"
 	"github.com/mproyyan/gin-rest-api/internal/adapters/databases"
 	"github.com/mproyyan/gin-rest-api/internal/application/domain"
 )
@@ -86,6 +88,9 @@ func (pr *ProductRepository) Find(ctx context.Context, productId int) (*domain.P
 		if err = rows.Err(); err != nil {
 			return nil, err
 		}
+	} else {
+		notFound := fmt.Errorf("you tried to search for a product with id %d, and no results were found", productId)
+		return nil, cuserr.NewProductNotFoundErr().Wrap(notFound)
 	}
 
 	return &product, nil
