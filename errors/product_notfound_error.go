@@ -1,5 +1,7 @@
 package errors
 
+import "github.com/gin-gonic/gin"
+
 type ProductNotFoundErr struct {
 	StatusCode int    `json:"status"`
 	Type       string `json:"type"`
@@ -13,6 +15,12 @@ func NewProductNotFoundErr() *ProductNotFoundErr {
 		Type:       "ProductNotFoundErr",
 		Title:      "Product not found.",
 	}
+}
+
+func ProductNotFoundErrHandler(c *gin.Context, err error) {
+	pne := err.(*ProductNotFoundErr)
+	c.JSON(pne.StatusCode, pne)
+	c.Abort()
 }
 
 func (pne *ProductNotFoundErr) Wrap(err error) *ProductNotFoundErr {
