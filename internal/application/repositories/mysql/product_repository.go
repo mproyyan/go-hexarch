@@ -117,6 +117,9 @@ func (pr *ProductRepository) Delete(ctx context.Context, productId int) error {
 	}
 
 	_, err = pr.DB.ExecContext(ctx, sql, args...)
+	if err != nil {
+		cuserr.NewInternalServerErr().Wrap(err)
+	}
 
-	return cuserr.NewInternalServerErr().Wrap(err)
+	return nil
 }

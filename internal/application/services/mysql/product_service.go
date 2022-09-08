@@ -80,5 +80,5 @@ func (ps *ProductService) Delete(ctx context.Context, productId int) error {
 		return err
 	}
 
-	return nil
+	return err
 }
