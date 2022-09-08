@@ -8,12 +8,12 @@ type Product struct {
 }
 
 type ProductCreateRequest struct {
-	Name string `json:"name" form:"name" binding:"required,min=1,max=200,alpha"`
+	Name string `json:"name" form:"name" binding:"required,min=1,max=200"`
 }
 
 type ProductUpdateRequest struct {
 	ID   int    `json:"id"`
-	Name string `json:"name" form:"name" binding:"required,min=1,max=200,alpha"`
+	Name string `json:"name" form:"name" binding:"required,min=1,max=200"`
 }
 
 type ProductRepository interface {
