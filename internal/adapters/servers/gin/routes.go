@@ -3,13 +3,12 @@ package ginserver
 import (
 	"github.com/gin-gonic/gin"
 	httpd "github.com/mproyyan/gin-rest-api/internal/application/deliveries/http"
-	"github.com/mproyyan/gin-rest-api/middlewares"
 )
 
 func (gs *GinServer) productRoutes(r *gin.Engine) {
 	productHttp := gs.findHandler("productHttp").(*httpd.ProductHttp)
 
-	pr := r.Group("/api/products").Use(middlewares.ErrorHandler())
+	pr := r.Group("/api/products")
 	pr.GET("/", productHttp.FindAll)
 	pr.POST("/", productHttp.Create)
 	pr.GET("/:id", productHttp.Find)
