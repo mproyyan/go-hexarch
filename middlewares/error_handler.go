@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	cuserr "github.com/mproyyan/gin-rest-api/errors"
 )
 
@@ -16,6 +17,10 @@ func ErrorHandler() gin.HandlerFunc {
 				return
 			case *cuserr.ProductNotFoundErr:
 				cuserr.ProductNotFoundErrHandler(c, err.Err)
+				return
+			case validator.ValidationErrors:
+				cuserr.ValidationErrHandler(c, err.Err)
+				return
 			default:
 				c.JSON(500, gin.H{"error": err.Err.Error()})
 				c.Abort()
