@@ -1,4 +1,4 @@
-DB_URL=mysql://root:sussyballs@tcp(localhost:3306)/go_simple_restful
+DB_URL=mysql://root:ligmaballs@tcp(localhost:3306)/go_simple_restful
 
 dbup:
 	migrate -database "$(DB_URL)" -path db/migrations up $(n)

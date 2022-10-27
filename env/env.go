@@ -10,7 +10,8 @@ import (
 
 type Environment struct {
 	// Application Envs
-	APP_PORT string `env:"APP_PORT"`
+	APP_PORT   string `env:"APP_PORT"`
+	APP_LOCALE string `env:"APP_LOCALE"`
 
 	// Database Envs
 	DB_CONN     string `env:"DB_CONN"`

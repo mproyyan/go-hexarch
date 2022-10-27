@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+
+	tl "github.com/mproyyan/validation-error-translator"
 )
 
 type ErrorField struct {
@@ -47,7 +49,7 @@ func extractErrorField(verr validator.ValidationErrors) ([]ErrorField, int) {
 	for _, field := range verr {
 		errField := ErrorField{
 			FieldName: field.Field(),
-			Reason:    field.Tag(),
+			Reason:    tl.Translate(field),
 		}
 		errorFields = append(errorFields, errField)
 	}

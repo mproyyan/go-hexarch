@@ -21,7 +21,7 @@ func Boot() ports.Server {
 		log.Fatal(err)
 	}
 
-	server := gs.NewGinServer(datasource, config.APP_PORT)
+	server := gs.NewGinServer(datasource, config)
 	return server
 }
 

@@ -9,21 +9,24 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/mproyyan/gin-rest-api/env"
 	"github.com/mproyyan/gin-rest-api/middlewares"
+
+	tl "github.com/mproyyan/validation-error-translator"
 )
 
 type GinServer struct {
 	*gin.Engine
-	port         string
+	Env          env.Environment
 	repositories map[string]interface{}
 	services     map[string]interface{}
 	handlers     map[string]interface{}
 }
 
-func NewGinServer(datasource interface{}, port string) *GinServer {
+func NewGinServer(datasource interface{}, env env.Environment) *GinServer {
 	gs := &GinServer{
 		Engine:       gin.Default(),
-		port:         port,
+		Env:          env,
 		repositories: make(map[string]interface{}),
 		services:     make(map[string]interface{}),
 		handlers:     make(map[string]interface{}),
@@ -41,7 +44,7 @@ func NewGinServer(datasource interface{}, port string) *GinServer {
 
 func (gs *GinServer) Run() {
 	log.Fatal(
-		gs.Engine.Run(fmt.Sprintf(":%s", gs.port)),
+		gs.Engine.Run(fmt.Sprintf(":%s", gs.Env.APP_PORT)),
 	)
 }
 
@@ -61,4 +64,7 @@ func (gs *GinServer) configure() {
 
 	// register global middleware for error handling
 	gs.Engine.Use(middlewares.ErrorHandler())
+
+	// load error translation
+	tl.Load(gs.Env.APP_LOCALE)
 }
