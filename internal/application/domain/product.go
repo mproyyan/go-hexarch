@@ -1,6 +1,10 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	"github.com/mproyyan/gin-rest-api/internal/adapters/databases"
+)
 
 type Product struct {
 	ID   int    `json:"id"`
@@ -17,11 +21,11 @@ type ProductUpdateRequest struct {
 }
 
 type ProductRepository interface {
-	FindAll(ctx context.Context) ([]*Product, error)
-	Save(ctx context.Context, product Product) (*Product, error)
-	Find(ctx context.Context, productId int) (*Product, error)
-	Update(ctx context.Context, product Product) (*Product, error)
-	Delete(ctx context.Context, productId int) error
+	FindAll(ctx context.Context, dbtx databases.DBTX) ([]*Product, error)
+	Save(ctx context.Context, dbtx databases.DBTX, product Product) (*Product, error)
+	Find(ctx context.Context, dbtx databases.DBTX, productId int) (*Product, error)
+	Update(ctx context.Context, dbtx databases.DBTX, product Product) (*Product, error)
+	Delete(ctx context.Context, dbtx databases.DBTX, productId int) error
 }
 
 type ProductService interface {
