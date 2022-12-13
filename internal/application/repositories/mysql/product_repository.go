@@ -6,18 +6,14 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	cuserr "github.com/mproyyan/gin-rest-api/errors"
-	"github.com/mproyyan/gin-rest-api/internal/adapters/databases"
 	"github.com/mproyyan/gin-rest-api/internal/application/domain"
 )
 
 type ProductRepository struct {
-	DB databases.DBTX
 }
 
-func NewProductRepository(db databases.DBTX) *ProductRepository {
-	return &ProductRepository{
-		DB: db,
-	}
+func NewProductRepository() *ProductRepository {
+	return &ProductRepository{}
 }
 
 func (pr *ProductRepository) FindAll(ctx context.Context) ([]*domain.Product, error) {
