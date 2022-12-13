@@ -20,7 +20,7 @@ func NewProductService(db *sql.DB, productRepository domain.ProductRepository) *
 }
 
 func (ps *ProductService) FindAll(ctx context.Context) ([]*domain.Product, error) {
-	products, err := ps.ProductRepository.FindAll(ctx)
+	products, err := ps.ProductRepository.FindAll(ctx, ps.DB)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func (ps *ProductService) Create(ctx context.Context, request domain.ProductCrea
 		Name: request.Name,
 	}
 
-	product, err := ps.ProductRepository.Save(ctx, newProduct)
+	product, err := ps.ProductRepository.Save(ctx, ps.DB, newProduct)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (ps *ProductService) Create(ctx context.Context, request domain.ProductCrea
 }
 
 func (ps *ProductService) Find(ctx context.Context, productId int) (*domain.Product, error) {
-	product, err := ps.ProductRepository.Find(ctx, productId)
+	product, err := ps.ProductRepository.Find(ctx, ps.DB, productId)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (ps *ProductService) Find(ctx context.Context, productId int) (*domain.Prod
 
 func (ps *ProductService) Update(ctx context.Context, request domain.ProductUpdateRequest) (*domain.Product, error) {
 	// first find product by id, if not found error returned
-	existsProduct, err := ps.ProductRepository.Find(ctx, request.ID)
+	existsProduct, err := ps.ProductRepository.Find(ctx, ps.DB, request.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (ps *ProductService) Update(ctx context.Context, request domain.ProductUpda
 	// change name to new
 	existsProduct.Name = request.Name
 
-	updatedProduct, err := ps.ProductRepository.Update(ctx, *existsProduct)
+	updatedProduct, err := ps.ProductRepository.Update(ctx, ps.DB, *existsProduct)
 	if err != nil {
 		return nil, err
 	}
@@ -70,12 +70,12 @@ func (ps *ProductService) Update(ctx context.Context, request domain.ProductUpda
 
 func (ps *ProductService) Delete(ctx context.Context, productId int) error {
 	// first find product by id, if not found error returned
-	existsProduct, err := ps.ProductRepository.Find(ctx, productId)
+	existsProduct, err := ps.ProductRepository.Find(ctx, ps.DB, productId)
 	if err != nil {
 		return err
 	}
 
-	err = ps.ProductRepository.Delete(ctx, existsProduct.ID)
+	err = ps.ProductRepository.Delete(ctx, ps.DB, existsProduct.ID)
 	if err != nil {
 		return err
 	}
