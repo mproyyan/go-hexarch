@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	cuserr "github.com/mproyyan/gin-rest-api/errors"
 	"github.com/mproyyan/gin-rest-api/internal/application/domain"
 )
 
@@ -17,6 +18,35 @@ func NewProductService(db *sql.DB, productRepository domain.ProductRepository) *
 		DB:                db,
 		ProductRepository: productRepository,
 	}
+}
+
+func (ps *ProductService) transaction(ctx context.Context, cb func(*sql.Tx) error) error {
+	// start transaction
+	tx, err := ps.DB.Begin()
+	if err != nil {
+		return cuserr.NewInternalServerErr().Wrap(err)
+	}
+
+	// run callback
+	// if callback return error then rollback the transaction
+	err = cb(tx)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			// log.Fatalf("Transaction rollback failur, cause of rollback : %s", err.Error())
+			return cuserr.NewInternalServerErr().Wrap(rbErr)
+		}
+
+		return err
+	}
+
+	// if callback successfully executed and no error return
+	// then commit the transaction and save all changes
+	err = tx.Commit()
+	if err != nil {
+		return cuserr.NewInternalServerErr().Wrap(err)
+	}
+
+	return nil
 }
 
 func (ps *ProductService) FindAll(ctx context.Context) ([]*domain.Product, error) {
@@ -51,16 +81,30 @@ func (ps *ProductService) Find(ctx context.Context, productId int) (*domain.Prod
 }
 
 func (ps *ProductService) Update(ctx context.Context, request domain.ProductUpdateRequest) (*domain.Product, error) {
-	// first find product by id, if not found error returned
-	existsProduct, err := ps.ProductRepository.Find(ctx, ps.DB, request.ID)
-	if err != nil {
-		return nil, err
-	}
+	var updatedProduct *domain.Product
 
-	// change name to new
-	existsProduct.Name = request.Name
+	err := ps.transaction(ctx, func(tx *sql.Tx) error {
+		var err error
 
-	updatedProduct, err := ps.ProductRepository.Update(ctx, ps.DB, *existsProduct)
+		// first find product by id, if not found error returned
+		existsProduct, err := ps.ProductRepository.Find(ctx, tx, request.ID)
+		if err != nil {
+			return err
+		}
+
+		// change name to new
+		existsProduct.Name = request.Name
+
+		// update product with new data
+		updatedProduct, err = ps.ProductRepository.Update(ctx, tx, *existsProduct)
+		if err != nil {
+			return err
+		}
+
+		return err
+	})
+
+	// check the transaction is valid or not
 	if err != nil {
 		return nil, err
 	}
