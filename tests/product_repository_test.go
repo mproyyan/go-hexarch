@@ -5,6 +5,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/mproyyan/gin-rest-api/internal/adapters/databases"
 	"github.com/mproyyan/gin-rest-api/internal/application/domain"
 	"github.com/mproyyan/gin-rest-api/mocks"
 	"github.com/stretchr/testify/assert"
@@ -20,10 +21,10 @@ func TestProductRepositoryFindAllSuccess(t *testing.T) {
 	}
 
 	repo := mocks.NewProductRepository(t)
-	repo.On("FindAll", mock.Anything).
+	repo.On("FindAll", mock.Anything, mock.Anything).
 		Return(expected, nil)
 
-	result, err := repo.FindAll(context.Background())
+	result, err := repo.FindAll(context.Background(), mocks.NewDBTX(t))
 
 	assert.NoError(t, err)
 	assert.Nil(t, err)
@@ -33,10 +34,10 @@ func TestProductRepositoryFindAllSuccess(t *testing.T) {
 
 func TestProductRepositoryFindAllFailed(t *testing.T) {
 	repo := mocks.NewProductRepository(t)
-	repo.On("FindAll", mock.Anything).
+	repo.On("FindAll", mock.Anything, mock.Anything).
 		Return(nil, errors.New("product not found"))
 
-	result, err := repo.FindAll(context.Background())
+	result, err := repo.FindAll(context.Background(), mocks.NewDBTX(t))
 
 	assert.Nil(t, result)
 	assert.Error(t, err)
@@ -48,14 +49,14 @@ func TestProductRepositorySaveSuccess(t *testing.T) {
 	}
 
 	repo := mocks.NewProductRepository(t)
-	repo.On("Save", mock.Anything, mock.Anything).
-		Return(func(ctx context.Context, prod domain.Product) *domain.Product {
+	repo.On("Save", mock.Anything, mock.Anything, mock.Anything).
+		Return(func(ctx context.Context, dbtx databases.DBTX, prod domain.Product) *domain.Product {
 			prod.ID = 77
 
 			return &prod
 		}, nil)
 
-	result, err := repo.Save(context.Background(), prod)
+	result, err := repo.Save(context.Background(), mocks.NewDBTX(t), prod)
 
 	assert.NoError(t, err)
 	assert.Nil(t, err)
@@ -69,10 +70,10 @@ func TestProductRepositorySaveFailed(t *testing.T) {
 	}
 
 	repo := mocks.NewProductRepository(t)
-	repo.On("Save", mock.Anything, mock.Anything).
+	repo.On("Save", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, errors.New("fail"))
 
-	result, err := repo.Save(context.Background(), prod)
+	result, err := repo.Save(context.Background(), mocks.NewDBTX(t), prod)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -85,10 +86,10 @@ func TestProductRepositoryFindSuccess(t *testing.T) {
 	}
 
 	repo := mocks.NewProductRepository(t)
-	repo.On("Find", mock.Anything, mock.AnythingOfType("int")).
+	repo.On("Find", mock.Anything, mock.Anything, mock.AnythingOfType("int")).
 		Return(&prod, nil)
 
-	result, err := repo.Find(context.Background(), 77)
+	result, err := repo.Find(context.Background(), mocks.NewDBTX(t), 77)
 
 	assert.NoError(t, err)
 	assert.Nil(t, err)
@@ -98,10 +99,10 @@ func TestProductRepositoryFindSuccess(t *testing.T) {
 
 func TestProductRepositoryFindFailed(t *testing.T) {
 	repo := mocks.NewProductRepository(t)
-	repo.On("Find", mock.Anything, mock.AnythingOfType("int")).
+	repo.On("Find", mock.Anything, mock.Anything, mock.AnythingOfType("int")).
 		Return(nil, errors.New("nt found"))
 
-	result, err := repo.Find(context.Background(), 77)
+	result, err := repo.Find(context.Background(), mocks.NewDBTX(t), 77)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -114,13 +115,13 @@ func TestProductRepositoryUpdateSuccess(t *testing.T) {
 	}
 
 	repo := mocks.NewProductRepository(t)
-	repo.On("Update", mock.Anything, mock.Anything).
-		Return(func(ctx context.Context, prod domain.Product) *domain.Product {
+	repo.On("Update", mock.Anything, mock.Anything, mock.Anything).
+		Return(func(ctx context.Context, dbtx databases.DBTX, prod domain.Product) *domain.Product {
 			prod.Name = "Changed"
 			return &prod
 		}, nil)
 
-	result, err := repo.Update(context.Background(), prod)
+	result, err := repo.Update(context.Background(), mocks.NewDBTX(t), prod)
 
 	assert.NoError(t, err)
 	assert.Nil(t, err)
@@ -135,10 +136,10 @@ func TestProductRepositoryUpdateFailed(t *testing.T) {
 	}
 
 	repo := mocks.NewProductRepository(t)
-	repo.On("Update", mock.Anything, mock.Anything).
+	repo.On("Update", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, errors.New("fail"))
 
-	result, err := repo.Update(context.Background(), prod)
+	result, err := repo.Update(context.Background(), mocks.NewDBTX(t), prod)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -146,10 +147,10 @@ func TestProductRepositoryUpdateFailed(t *testing.T) {
 
 func TestProductRepositoryDeleteSuccess(t *testing.T) {
 	repo := mocks.NewProductRepository(t)
-	repo.On("Delete", mock.Anything, mock.Anything).
+	repo.On("Delete", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil)
 
-	err := repo.Delete(context.Background(), 33)
+	err := repo.Delete(context.Background(), mocks.NewDBTX(t), 33)
 
 	assert.NoError(t, err)
 	assert.Nil(t, err)
@@ -157,10 +158,10 @@ func TestProductRepositoryDeleteSuccess(t *testing.T) {
 
 func TestProductRepositoryDeleteFailed(t *testing.T) {
 	repo := mocks.NewProductRepository(t)
-	repo.On("Delete", mock.Anything, mock.Anything).
+	repo.On("Delete", mock.Anything, mock.Anything, mock.Anything).
 		Return(errors.New("fail"))
 
-	err := repo.Delete(context.Background(), 33)
+	err := repo.Delete(context.Background(), mocks.NewDBTX(t), 33)
 
 	assert.Error(t, err)
 }
