@@ -6,6 +6,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	cuserr "github.com/mproyyan/gin-rest-api/errors"
+	"github.com/mproyyan/gin-rest-api/internal/adapters/databases"
 	"github.com/mproyyan/gin-rest-api/internal/application/domain"
 )
 
@@ -16,13 +17,13 @@ func NewProductRepository() *ProductRepository {
 	return &ProductRepository{}
 }
 
-func (pr *ProductRepository) FindAll(ctx context.Context) ([]*domain.Product, error) {
+func (pr *ProductRepository) FindAll(ctx context.Context, dbtx databases.DBTX) ([]*domain.Product, error) {
 	sql, _, err := sq.Select("id", "name").From("products").ToSql()
 	if err != nil {
 		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
-	rows, err := pr.DB.QueryContext(ctx, sql)
+	rows, err := dbtx.QueryContext(ctx, sql)
 	if err != nil {
 		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
@@ -44,13 +45,13 @@ func (pr *ProductRepository) FindAll(ctx context.Context) ([]*domain.Product, er
 	return products, nil
 }
 
-func (pr *ProductRepository) Save(ctx context.Context, product domain.Product) (*domain.Product, error) {
+func (pr *ProductRepository) Save(ctx context.Context, dbtx databases.DBTX, product domain.Product) (*domain.Product, error) {
 	sql, args, err := sq.Insert("products").Columns("name").Values(product.Name).ToSql()
 	if err != nil {
 		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
-	result, err := pr.DB.ExecContext(ctx, sql, args...)
+	result, err := dbtx.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
@@ -65,13 +66,13 @@ func (pr *ProductRepository) Save(ctx context.Context, product domain.Product) (
 	return &product, nil
 }
 
-func (pr *ProductRepository) Find(ctx context.Context, productId int) (*domain.Product, error) {
+func (pr *ProductRepository) Find(ctx context.Context, dbtx databases.DBTX, productId int) (*domain.Product, error) {
 	sql, args, err := sq.Select("id", "name").From("products").Where("id = ?", productId).Limit(1).ToSql()
 	if err != nil {
 		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
-	rows, err := pr.DB.QueryContext(ctx, sql, args...)
+	rows, err := dbtx.QueryContext(ctx, sql, args...)
 	if err != nil {
 		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
@@ -92,13 +93,13 @@ func (pr *ProductRepository) Find(ctx context.Context, productId int) (*domain.P
 	return &product, nil
 }
 
-func (pr *ProductRepository) Update(ctx context.Context, product domain.Product) (*domain.Product, error) {
+func (pr *ProductRepository) Update(ctx context.Context, dbtx databases.DBTX, product domain.Product) (*domain.Product, error) {
 	sql, args, err := sq.Update("products").Set("name", product.Name).Where("id = ?", product.ID).ToSql()
 	if err != nil {
 		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
 
-	_, err = pr.DB.ExecContext(ctx, sql, args...)
+	_, err = dbtx.ExecContext(ctx, sql, args...)
 	if err != nil {
 		return nil, cuserr.NewInternalServerErr().Wrap(err)
 	}
@@ -106,13 +107,13 @@ func (pr *ProductRepository) Update(ctx context.Context, product domain.Product)
 	return &product, nil
 }
 
-func (pr *ProductRepository) Delete(ctx context.Context, productId int) error {
+func (pr *ProductRepository) Delete(ctx context.Context, dbtx databases.DBTX, productId int) error {
 	sql, args, err := sq.Delete("products").Where("id = ?", productId).ToSql()
 	if err != nil {
 		return cuserr.NewInternalServerErr().Wrap(err)
 	}
 
-	_, err = pr.DB.ExecContext(ctx, sql, args...)
+	_, err = dbtx.ExecContext(ctx, sql, args...)
 	if err != nil {
 		cuserr.NewInternalServerErr().Wrap(err)
 	}
